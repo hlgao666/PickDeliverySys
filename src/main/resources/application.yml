@@ -1,0 +1,82 @@
+spring:
+  datasource:
+    username: "root"
+    password: "1005"
+    # 如果时区报错，添加： serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/papervns?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
+    driver-class-name: com.mysql.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    ## Druid数据源配置
+    ## 初始化连接池的连接数量 大小，最小，最大
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: SELECT 1 FROM DUAL
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+
+    #配置监控统计拦截的filters，stat：监控统计、log4j：日志记录、wall：防御sql注入
+    filters: stat,wall,log4j2
+    maxPoolPreparedStatementPerConnectionSize: 20
+    useGlobalDataSourceStat: true
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500
+  # 清除缓存
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+
+  # 配置 log4j
+#logging:
+#  config: classpath:log4j2.yml
+
+logging:
+  level:
+    com:
+      allen:
+        mapper:
+          debug
+
+
+# 端口
+server:
+  port: 8080
+
+
+# 整合mybatis
+# 开启别名
+mybatis:
+  type-aliases-package: com.allen.pojo
+  mapper-locations: classpath:mybatis/mapper/*.xml
+
+#分页pageHelper
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+
+# 配置redis
+redis:
+  host: 222.20.79.105
+  port: 6379
+  jedis:
+    pool:
+      max-active: 8
+      max-wait: -1
+      max-idle: 500
+      min-idle: 0
+  lettuce:
+    shutdown-timeout: 0
+
+
+# 配置rabbit-mq
+rabbitmq:
+  host: 222.20.79.105
+  port: 5672
+  username: guest
+  password: guest
+  virtual-host: /

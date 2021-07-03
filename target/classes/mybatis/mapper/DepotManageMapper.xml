@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.allen.mapper.DepotManageMapper">
+
+    <insert id="addDepotPosition" parameterType="depot">
+        insert into papervns.logistics_depot_position
+        (oil_depot_no, oil_depot_name, longitude, latitude)
+        values (#{oil_depot_no}, #{oil_depot_name}, #{longitude}, #{latitude})
+    </insert>
+
+    <delete id="deleteDepotPosition" parameterType="String">
+        delete from papervns.logistics_depot_position where oil_depot_no=#{oil_depot_no}
+    </delete>
+
+    <update id="updateDepotPosition" parameterType="depot">
+        update papervns.logistics_depot_position
+        <set>
+            <if test="oil_depot_name != null">oil_depot_name=#{oil_depot_name},</if>
+            <if test="longitude != null">longitude=#{longitude},</if>
+            <if test="latitude !=null">latitude=#{latitude}</if>
+        </set>
+        where oil_depot_no=#{oil_depot_no}
+    </update>
+
+    <select id="selectDepotByDepotNo" resultType="depot" parameterType="String">
+        select oil_depot_no,oil_depot_name,longitude,latitude from papervns.logistics_depot_position where oil_depot_no=#{oil_depot_no}
+    </select>
+
+    <select id="allDepotPosition" resultType="depot">
+        select oil_depot_no,oil_depot_name,longitude,latitude from papervns.logistics_depot_position
+    </select>
+
+
+
+
+
+    <insert id="addDepotUsableOil" parameterType="usableOil">
+        insert into papervns.logistics_depot_usable_oil
+            (oil_depot_no, oil_pot_no, oil_type_id, usable_vol, state)
+        values (#{oil_depot_no}, #{oil_pot_no}, #{oil_type_id}, #{usable_vol}, #{state})
+    </insert>
+
+    <delete id="deleteDepotUsableOil" parameterType="String">
+        delete from papervns.logistics_depot_usable_oil
+        where oil_depot_no=#{oil_depot_no} and oil_pot_no=#{oil_pot_no}
+    </delete>
+
+    <update id="updateDepotUsableOil" parameterType="usableOil">
+        update papervns.logistics_depot_usable_oil
+        <set>
+            <if test="usable_vol != null">usable_vol=#{usable_vol},</if>
+            <if test="state !=null">state=#{state}</if>
+        </set>
+        where oil_depot_no=#{oil_depot_no} and oil_type_id=#{oil_type_id}
+    </update>
+
+    <select id="selectUsableOilByDepot" resultType="usableOil" parameterType="String">
+        select logistics_depot_usable_oil.oil_depot_no,oil_pot_no, logistics_depot_usable_oil.oil_type_id, oil_density,measure_time,state,usable_vol
+        from papervns.logistics_depot_usable_oil,papervns.logistics_depot_density
+        where logistics_depot_density.oil_depot_no=#{oil_depot_no}
+        and logistics_depot_density.oil_depot_no=logistics_depot_usable_oil.oil_depot_no
+        and logistics_depot_density.oil_type_id=logistics_depot_usable_oil.oil_type_id
+    </select>
+
+    <select id="allUsableOil" resultType="usableOil">
+        select logistics_depot_usable_oil.oil_depot_no,oil_pot_no, logistics_depot_usable_oil.oil_type_id, oil_density,measure_time,state,usable_vol
+        from papervns.logistics_depot_usable_oil,papervns.logistics_depot_density
+        where logistics_depot_density.oil_depot_no=logistics_depot_usable_oil.oil_depot_no
+        and logistics_depot_density.oil_type_id=logistics_depot_usable_oil.oil_type_id
+    </select>
+
+</mapper>

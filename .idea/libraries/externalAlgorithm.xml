@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="externalAlgorithm">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/src/externalAlgorithm.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

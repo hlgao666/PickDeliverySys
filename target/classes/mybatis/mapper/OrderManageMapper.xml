@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.allen.mapper.OrderManageMapper">
+
+    <insert id="addSingleOrder" parameterType="order">
+        insert into papervns.candidate_order
+            (order_date, order_id, station, oil_station_id,oil_depot_no,pot_no,oil_type,
+             requirement,priority,off_for,status)
+        values (#{order_date}, #{order_id}, #{station}, #{oil_station_id}, #{oil_depot_no}, #{pot_no},
+                #{oil_type}, #{requirement}, #{priority}, #{off_for}, #{status})
+    </insert>
+
+    <delete id="deleteSingleOrder" parameterType="String">
+        delete from papervns.candidate_order where order_id=#{order_id}
+    </delete>
+
+    <update id="updateOrder" parameterType="order">
+        update papervns.candidate_order
+        <set>
+            <if test="order_date != null">order_date=#{order_date},</if>
+            <if test="oil_depot_no != null">oil_depot_no=#{oil_depot_no},</if>
+            <if test="requirement != null">requirement=#{requirement},</if>
+            <if test="priority != null">priority=#{priority},</if>
+            <if test="off_for != null">off_for=#{off_for},</if>
+            <if test="status != null">status=#{status}</if>
+        </set>
+        where order_id=#{order_id}
+    </update>
+
+    <select id="selectOrderByDepotAndOffFor" resultType="order" parameterType="String">
+        select order_date, order_id, station, oil_station_id,oil_depot_no,pot_no,oil_type,
+               requirement,priority,off_for,status
+        from papervns.candidate_order
+        <where>
+            <if test="oil_depot_no!=null and oil_depot_no != ''">
+                oil_depot_no = #{oil_depot_no}
+            </if>
+            <if test="off_for1 != null and off_for1 != '' and off_for2 != null and off_for2 != ''">
+                and off_for between #{off_for1} and #{off_for2}
+            </if>
+        </where>
+    </select>
+
+    <select id="allOrder" resultType="Order">
+        select order_date, order_id, station, oil_station_id,oil_depot_no,pot_no,oil_type,
+               requirement,priority,off_for,status
+        from papervns.candidate_order
+    </select>
+
+</mapper>

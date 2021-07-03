@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.allen.mapper.SchemeMapper">
+
+    <select id="allTruckTrip" resultType="truckTripDetail">
+        select order_date,t1.truck_num,trip_total, trip_begin_time,turns_end_time
+        from
+            (select order_date,truck_num,trip_total, trip_begin_time
+             from papervns.logistics_walkthrough_result
+             group by truck_num)
+                as t1,
+            (select distinct truck_num, turns_end_time
+             from papervns.logistics_walkthrough_result
+             where pkno in
+                   (select MAX(pkno) FROM  logistics_walkthrough_result group by truck_num)
+            ) as t2
+        where t1.truck_num = t2.truck_num
+    </select>
+
+    <select id="truckTripDetail" parameterType="String" resultType="truckTripDetail">
+        select logistics_walkthrough_result.order_date, truck_num, trip_no, station_no, station,
+               logistics_walkthrough_result.order_id, logistics_walkthrough_result.oil_type,
+               logistics_walkthrough_result.requirement,comp_no,trip_begin_time,arrive_time
+               from papervns.logistics_walkthrough_result, papervns.logistics_oil_order
+        where truck_num=#{truck_num} AND papervns.logistics_oil_order.order_id=papervns.logistics_walkthrough_result.order_id
+    </select>
+
+    <select id="allStationOrder" resultType="StationAssignDetail">
+        select order_date, t.oil_station_id, station, oil_depot_name, order_total
+        from
+
+            (select oil_station_id,  count(*) as order_total from papervns.logistics_walkthrough_result group by oil_station_id) as t,
+
+            (select logistics_walkthrough_result.order_date as order_date, logistics_walkthrough_result.oil_station_id as oil_station_id, station
+             from papervns.logistics_walkthrough_result, papervns.logistics_oil_order
+             where logistics_oil_order.oil_station_id=logistics_walkthrough_result.oil_station_id group by station) as w,
+
+            (select oil_depot_name
+             from papervns.logistics_depot_position
+             where logistics_depot_position.oil_depot_no
+                       in (select distinct oil_depot_no from papervns.logistics_walkthrough_result)
+            ) as q
+        where t.oil_station_id=w.oil_station_id
+    </select>
+
+
+    <select id="stationOrderDetail" parameterType="String" resultType="StationAssignDetail">
+        select logistics_walkthrough_result.order_date, logistics_walkthrough_result.oil_station_id,
+               station, logistics_walkthrough_result.order_id,
+               logistics_walkthrough_result.oil_type, logistics_walkthrough_result.requirement,
+               logistics_walkthrough_result.pot_no, truck_num, trip_begin_time, arrive_time
+        from papervns.logistics_walkthrough_result, papervns.logistics_oil_order
+        where logistics_walkthrough_result.oil_station_id=#{oil_station_id}
+        AND papervns.logistics_oil_order.order_id=papervns.logistics_walkthrough_result.order_id
+    </select>
+
+    <insert id="resultCopy">
+        insert into papervns.result_set select * from papervns.logistics_walkthrough_result
+    </insert>
+
+    <select id="queryResultTime" resultType="String">
+        select logistics_walkthrough_result.mtime from papervns.logistics_walkthrough_result limit 1
+    </select>
+
+    <select id="queryResultRevenue" resultType="Double">
+        select result_revenue from papervns.logistics_walkthrough_result limit 1
+    </select>
+</mapper>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.allen.mapper.SelectOrderMapper">
+
+    <insert id="selectAllOrderByDepotAndDate" parameterType="String">
+        insert into papervns.logistics_oil_order select * from papervns.candidate_order
+        where candidate_order.oil_depot_no=#{oil_depot_no} and candidate_order.order_date=#{order_date}
+    </insert>
+
+    <insert id="addSingleOrder" parameterType="order">
+        insert into papervns.logistics_oil_order
+            (order_date,order_id,oil_station_id,station,oil_depot_no,
+             pot_no,oil_type,requirement,priority,off_for)
+             values (#{order_date},#{order_id},#{oil_station_id},
+                     (select station_name from papervns.ucenter_station_info where station_id=#{oil_station_id}),
+                     (select oil_depot_no from papervns.logistics_depot_station_info where oil_station_id=#{oil_station_id}),
+                     #{pot_no},#{oil_type},#{requirement},
+                     #{priority},#{off_for})
+    </insert>
+
+    <insert id="addSingleOrderToCandidate" parameterType="order">
+        insert into papervns.candidate_order
+        (order_date,order_id,oil_station_id,station,oil_depot_no,
+         pot_no,oil_type,requirement,priority,off_for)
+        values (#{order_date},#{order_id},#{oil_station_id},
+                (select station_name from papervns.ucenter_station_info where station_id=#{oil_station_id}),
+                (select oil_depot_no from papervns.logistics_depot_station_info where oil_station_id=#{oil_station_id}),
+                #{pot_no},#{oil_type},#{requirement},
+                #{priority},#{off_for})
+    </insert>
+
+    <delete id="removeSingleOrder" parameterType="String">
+        delete from papervns.logistics_oil_order where order_id=#{order_id}
+    </delete>
+
+    <update id="updateOrder" parameterType="order">
+        update papervns.logistics_oil_order
+        <set>
+            <if test="order_date != null">order_date=#{order_date},</if>
+            <if test="station != null">station=#{station},</if>
+            <if test="oil_station_id !=null">oil_station_id=#{oil_station_id},</if>
+            <if test="pot_no != null">pot_no=#{pot_no},</if>
+            <if test="oil_type != null">oil_type=#{oil_type},</if>
+            <if test="requirement != null">requirement=#{requirement},</if>
+            <if test="priority!=null">priority=#{priority},</if>
+            <if test="off_for !=null">off_for=#{off_for}</if>
+        </set>
+        where order_id=#{order_id}
+    </update>
+
+    <update id="updateCandidateOrder" parameterType="order">
+        update papervns.candidate_order
+        <set>
+            <if test="order_date != null">order_date=#{order_date},</if>
+            <if test="station != null">station=#{station},</if>
+            <if test="oil_station_id !=null">oil_station_id=#{oil_station_id},</if>
+            <if test="pot_no != null">pot_no=#{pot_no},</if>
+            <if test="oil_type != null">oil_type=#{oil_type},</if>
+            <if test="requirement != null">requirement=#{requirement},</if>
+            <if test="priority!=null">priority=#{priority},</if>
+            <if test="off_for !=null">off_for=#{off_for}</if>
+        </set>
+        where order_id=#{order_id}
+    </update>
+
+    <select id="allSelectedOrder" resultType="order">
+        select * from papervns.logistics_oil_order
+    </select>
+
+    <select id="queryOrderByDDPO" resultType="order" parameterType="map">
+        select * from papervns.candidate_order
+        <where>
+            <if test="oil_depot_no!=null and oil_depot_no != ''">
+                oil_depot_no = #{oil_depot_no}
+            </if>
+            <if test="order_date != null and order_date != ''">
+                and order_date = #{order_date}
+            </if>
+            <if test="priority != null and priority != ''">
+                and priority = #{priority}
+            </if>
+            <if test="off_for1 != null and off_for1 != '' and off_for2 != null and off_for2 != ''">
+                and off_for between #{off_for1} and #{off_for2}
+            </if>
+        </where>
+    </select>
+
+    <update id="truncateTable">
+        truncate papervns.logistics_oil_order
+    </update>
+
+</mapper>

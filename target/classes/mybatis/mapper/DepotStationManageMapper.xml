@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.allen.mapper.DepotStationManageMapper">
+
+    <select id="allDepot" resultType="String">
+        select oil_depot_name from papervns.logistics_depot_position
+    </select>
+
+    <select id="allStation" resultType="String">
+        select station from papervns.logistics_station_position
+    </select>
+
+    <update id="updateOilDepotByStations" parameterType="map">
+        update papervns.logistics_depot_station_info
+        set oil_depot_no=
+        (select oil_depot_no from papervns.logistics_depot_position where oil_depot_name=#{oil_depot_name})
+        where oil_station_id in
+        (select oil_station_id
+        from papervns.logistics_station_position where station in
+            <foreach collection="stations" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        )
+    </update>
+
+    <select id="allAssignedDepot" resultType="String">
+        select oil_depot_name from papervns.logistics_depot_position where oil_depot_no in
+        (select distinct oil_depot_no from papervns.logistics_depot_station_info)
+    </select>
+
+    <select id="allStationByDepot" resultType="String" parameterType="String">
+        select station from papervns.logistics_station_position
+        where oil_station_id in
+        (select oil_station_id from papervns.logistics_depot_station_info
+        where logistics_depot_station_info.oil_depot_no=
+              (select oil_depot_no from papervns.logistics_depot_position where oil_depot_name=#{oil_depot_name}))
+    </select>
+
+</mapper>

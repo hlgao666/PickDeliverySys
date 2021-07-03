@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.allen.mapper.TruckManageMapper">
+
+    <select id="allTruck" resultType="Truck">
+        select truck_num, oil_type, bunker_num, bunker1_vol, bunker2_vol, bunker3_vol, bunker4_vol,
+               status
+        from papervns.candidate_truck, papervns.logistics_warehouse_info
+        where papervns.candidate_truck.bunker_type_id = papervns.logistics_warehouse_info.bunker_type_id
+    </select>
+
+
+    <select id="queryTruckByTruckNum" resultType="Truck" parameterType="String">
+        select truck_num, oil_type, bunker_num, bunker1_vol, bunker2_vol, bunker3_vol, bunker4_vol,
+               status
+        from papervns.candidate_truck, papervns.logistics_warehouse_info
+        where papervns.candidate_truck.truck_num = #{truck_num}
+        and   papervns.candidate_truck.bunker_type_id = papervns.logistics_warehouse_info.bunker_type_id
+    </select>
+
+    <insert id="addTruck" parameterType="truck">
+        insert into papervns.candidate_truck
+        (bunker_type_id, truck_num, oil_type, oil_depot_no, fix_cost,status)
+        values (#{bunker_type_id}, #{truck_num}, #{oil_type}, #{oil_depot_no}, #{fix_cost}, #{status})
+    </insert>
+
+    <update id="updateTruck" parameterType="truck">
+        update papervns.candidate_truck
+        <set>
+            <if test="oil_type != null">oil_type=#{oil_type},</if>
+            <if test="status != null">status=#{status}</if>
+        </set>
+        where truck_num=#{truck_num}
+    </update>
+
+    <delete id="deleteTruckByTruckNum" parameterType="String">
+        delete from papervns.candidate_truck where truck_num=#{truck_num}
+    </delete>
+
+    <select id="queryTruckNum" resultType="string">
+        select distinct truck_num
+        from papervns.candidate_truck
+    </select>
+</mapper>

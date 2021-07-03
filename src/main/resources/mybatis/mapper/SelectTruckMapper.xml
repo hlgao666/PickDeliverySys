@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.allen.mapper.SelectTruckMapper">
+
+    <select id="showCandidateTruckByDepot" resultType="truck" parameterType="String">
+        select candidate_truck.truck_num,oil_depot_no,oil_type,
+               bunker1_vol,bunker2_vol,bunker3_vol,bunker4_vol,current_plan
+        from papervns.logistics_warehouse_info, papervns.candidate_truck, papervns.logistics_truck_plan
+        where candidate_truck.truck_num=logistics_truck_plan.truck_num
+        and candidate_truck.bunker_type_id=logistics_warehouse_info.bunker_type_id
+        and candidate_truck.oil_depot_no = #{oil_depot_no}
+    </select>
+
+
+    <insert id="selectUsableTruck" parameterType="String">
+        insert into papervns.logistics_usable_truck
+        select * from papervns.candidate_truck
+        where truck_num in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </insert>
+
+
+
+
+
+    <insert id="selectAllTruckByDepot" parameterType="String">
+        insert into papervns.logistics_usable_truck
+        select * from papervns.candidate_truck
+        where oil_depot_no=#{oil_depot_no}
+    </insert>
+
+
+    <delete id="removeSingleTruck" parameterType="String">
+        delete from papervns.logistics_usable_truck
+        where truck_num=#{truck_num}
+    </delete>
+
+    <update id="updateTruck" parameterType="truck">
+        update papervns.logistics_usable_truck
+        <set>
+            <if test="oil_type != null">oil_type=#{oil_type},</if>
+            <if test="oil_depot_no != null">oil_depot_no=#{oil_depot_no},</if>
+        </set>
+        where truck_num=#{truck_num}
+    </update>
+
+    <update id="updateCandidateTruck" parameterType="truck">
+        update papervns.candidate_truck
+        <set>
+            <if test="oil_type != null">oil_type=#{oil_type},</if>
+            <if test="oil_depot_no != null">oil_depot_no=#{oil_depot_no},</if>
+        </set>
+        where truck_num=#{truck_num}
+    </update>
+
+    <select id="queryAllSelectedTruck" resultType="truck">
+        select logistics_usable_truck.truck_num,oil_depot_no,oil_type,
+               bunker1_vol,bunker2_vol,bunker3_vol,bunker4_vol,current_plan
+        from papervns.logistics_warehouse_info, papervns.logistics_usable_truck, papervns.logistics_truck_plan
+        where logistics_usable_truck.truck_num=logistics_truck_plan.truck_num
+        and logistics_usable_truck.bunker_type_id=logistics_warehouse_info.bunker_type_id
+    </select>
+
+    <update id="truncateTable">
+        truncate papervns.logistics_usable_truck
+    </update>
+</mapper>

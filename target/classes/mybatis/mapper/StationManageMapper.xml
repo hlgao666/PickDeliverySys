@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.allen.mapper.StationManageMapper">
+
+    <insert id="addStationPosition" parameterType="station">
+        insert into papervns.logistics_station_position(oil_station_id, station, longitude, latitude) VALUES
+        (#{oil_station_id},#{station},#{longitude},#{latitude})
+    </insert>
+
+    <delete id="deleteStationPosition" parameterType="String">
+        delete from papervns.logistics_station_position where oil_station_id=#{oil_station_id}
+    </delete>
+
+    <update id="updateStationPosition" parameterType="station">
+        update papervns.logistics_station_position
+        <set>
+            <if test="longitude != null">longitude=#{longitude},</if>
+            <if test="latitude != null">latitude=#{latitude}</if>
+        </set>
+        where oil_station_id=#{oil_station_id}
+    </update>
+
+    <select id="queryStationById" parameterType="String">
+        select oil_station_id,longitude,latitude from papervns.logistics_station_position
+        where oil_station_id=#{oil_station_id}
+    </select>
+
+    <select id="allStationPosition" resultType="station">
+        select oil_station_id,longitude,latitude from papervns.logistics_station_position
+    </select>
+
+    <!--   -->
+
+    <insert id="addDistance" parameterType="stationDistance">
+        insert into papervns.logistics_station_distance(oil_station_id1,oil_station_id2,distance,status)values
+        (#{oil_station_id1},#{oil_station_id2},#{distance},#{status})
+    </insert>
+
+    <delete id="deleteDistance" parameterType="stationDistance">
+        delete from papervns.logistics_station_distance
+        where (oil_station_id1=#{oil_station_id1} and oil_station_id2=#{oil_station_id2})
+        or (oil_station_id1=#{oil_station_id2} and oil_station_id2=#{oil_station_id1})
+    </delete>
+
+    <update id="updateDistance" parameterType="stationDistance">
+        update papervns.logistics_station_distance
+        <set>
+            <if test="distance != null">distance=#{distance},</if>
+            <if test="status != null">papervns.logistics_station_distance.status=#{status}</if>
+        </set>
+        where (oil_station_id1=#{oil_station_id1} and oil_station_id2=#{oil_station_id2})
+        or (oil_station_id1=#{oil_station_id2} and oil_station_id2=#{oil_station_id1})
+    </update>
+
+    <select id="queryByIds" parameterType="String">
+        select oil_station_id1,oil_station_id2,distance,status
+        from papervns.logistics_station_distance
+        where (oil_station_id1=#{oil_station_id1} and oil_station_id2=#{oil_station_id2})
+        or (oil_station_id1=#{oil_station_id2} and oil_station_id2=#{oil_station_id1})
+    </select>
+
+    <select id="allDistance" resultType="stationDistance">
+        select oil_station_id1,oil_station_id2,distance,status
+        from papervns.logistics_station_distance
+    </select>
+
+    <!--        -->
+
+    <insert id="addOilCan" parameterType="oilCan">
+        insert into papervns.logistics_station_pot(
+                   oil_station_id,pot_no,oil_type,
+                   pot_capacity,current_oil_loading,
+                   measure_time,auto_measure) values
+        (#{oil_station_id},#{pot_no},#{oil_type},#{pot_capacity},
+         #{current_oil_loading},#{measure_time},#{auto_measure})
+    </insert>
+
+    <delete id="deleteOilCan" parameterType="String">
+        delete from papervns.logistics_station_pot
+        where oil_station_id=#{oil_station_id} and pot_no=#{pot_no}
+    </delete>
+
+    <update id="updateOilCan" parameterType="oilCan">
+        update papervns.logistics_station_pot
+        <set>
+            <if test="current_oil_loading != null">current_oil_loading=#{current_oil_loading},</if>
+            <if test="oil_type != null">oil_type=#{oil_type},</if>
+            <if test="auto_measure != null">auto_measure=#{auto_measure},</if>
+            <if test="measure_time != null">measure_time=#{measure_time}</if>
+        </set>
+        where oil_station_id=#{oil_station_id} and pot_no=#{pot_no}
+    </update>
+
+    <select id="queryByDepot" resultType="oilCan" parameterType="String">
+        select oil_station_id,pot_no,oil_type,
+               pot_capacity,current_oil_loading,
+               measure_time,auto_measure
+        from papervns.logistics_station_pot
+        where oil_station_id in
+        (select oil_station_id from papervns.logistics_depot_station_info
+         where oil_depot_no=#{oil_depot_no})
+    </select>
+
+    <select id="allOilCan" resultType="oilCan">
+        select oil_station_id,pot_no,oil_type,
+               pot_capacity,current_oil_loading,
+               measure_time,auto_measure
+        from papervns.logistics_station_pot
+    </select>
+
+</mapper>
